@@ -1,5 +1,5 @@
 /**
- * SimScreenView.ts
+ * EulerScreenView.ts
  *
  * The top-level view for the simulation screen.
  *
@@ -9,7 +9,7 @@
  *   - Override step(dt) for frame-by-frame animation
  *
  * ── Adding content ────────────────────────────────────────────────────────────
- * 1. Create Node subclasses in separate files (e.g. SimControlPanel.ts)
+ * 1. Create Node subclasses in separate files (e.g. SlopeFieldsControlPanel.ts)
  * 2. Instantiate them here and call this.addChild(...)
  * 3. Link them to model properties:
  *      model.isRunningProperty.link( isRunning => { ... } );
@@ -21,28 +21,26 @@
  */
 
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
-import { Node, Rectangle, /* template-demo */ Text } from "scenerystack/scenery";
+import { Node, Rectangle } from "scenerystack/scenery";
 import { ResetAllButton } from "scenerystack/scenery-phet";
 import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
-import { name as packageName } from "../../../package.json"; // template-demo
-import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/SimButtonOptions.js";
-import { StringManager } from "../../i18n/StringManager.js"; // template-demo
-import SimColors from "../../SimColors.js";
-import { SCREEN_VIEW_MARGIN } from "../../SimConstants.js";
-import type { SimModel } from "../model/SimModel.js";
-import { SimScreenSummaryContent } from "./SimScreenSummaryContent.js";
+import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/SlopeFieldsButtonOptions.js";
+import SlopeFieldsColors from "../../SlopeFieldsColors.js";
+import { SCREEN_VIEW_MARGIN } from "../../SlopeFieldsConstants.js";
+import type { EulerModel } from "../model/EulerModel.js";
+import { EulerScreenSummaryContent } from "./EulerScreenSummaryContent.js";
 
-export type SimScreenViewOptions = ScreenViewOptions;
+export type EulerScreenViewOptions = ScreenViewOptions;
 
-export class SimScreenView extends ScreenView {
-  public constructor(model: SimModel, providedOptions?: SimScreenViewOptions) {
+export class EulerScreenView extends ScreenView {
+  public constructor(model: EulerModel, providedOptions?: EulerScreenViewOptions) {
     // ── Accessibility: screen summary ───────────────────────────────────────────
     // The screen summary is the first thing a screen-reader user encounters. It
     // is registered here, in the ScreenView's super() options, so every sim wires
-    // it the same way. See SimScreenSummaryContent for the four content regions.
-    const options = optionize<SimScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
+    // it the same way. See EulerScreenSummaryContent for the four content regions.
+    const options = optionize<EulerScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
       {
-        screenSummaryContent: new SimScreenSummaryContent(model),
+        screenSummaryContent: new EulerScreenSummaryContent(model),
       },
       providedOptions,
     );
@@ -52,26 +50,9 @@ export class SimScreenView extends ScreenView {
     // A full-screen rectangle that follows the active color profile.
     // Replace or remove once you add real content.
     const backgroundRect = new Rectangle(0, 0, this.layoutBounds.width, this.layoutBounds.height, {
-      fill: SimColors.backgroundColorProperty,
+      fill: SlopeFieldsColors.backgroundColorProperty,
     });
     this.addChild(backgroundRect);
-
-    // seed:placeholder:start
-    // ── Placeholder label (live template reference app only) ──────────────────
-    // Build the sentinel with join() so rename-sim's global "scenerystack-template"
-    // string substitution cannot rewrite this comparison into the new package id.
-    // scaffold-screens also strips the block when emitting fork screens.
-    const templatePackageName = ["scenerystack", "template"].join("-");
-    if (packageName === templatePackageName) {
-      const placeholderText = new Text(StringManager.getInstance().getScreenNames().simStringProperty, {
-        font: "bold 36px sans-serif",
-        fill: SimColors.textColorProperty,
-        center: this.layoutBounds.center,
-      });
-      this.addChild(placeholderText);
-    }
-
-    // seed:placeholder:end
 
     // ── Accessibility: per-control names ────────────────────────────────────────
     // EVERY interactive node must carry an `accessibleName` (and an
@@ -79,18 +60,17 @@ export class SimScreenView extends ScreenView {
     // string group — never a hard-coded English literal. Sun/scenery-phet controls
     // (NumberControl, Checkbox, ComboBox, AquaRadioButtonGroup, …) accept it as an
     // option; a draggable plain Node needs `tagName: "div", focusable: true` too.
-    // seed:accessible-control:start
-    // Example (uncomment and adapt when you add a real control):
+    // Example (uncomment and adapt when you add a real control; add the
+    // `a11y.controls.startButton` string to every strings_*.json first):
     //
     //   const a11y = StringManager.getInstance().getA11yStrings();
-    //   const exampleButton = new RectangularPushButton({
+    //   const startButton = new RectangularPushButton({
     //     ...FLAT_RECTANGULAR_BUTTON_OPTIONS, // flat appearance, not SceneryStack's default 3-D look
     //     content: someIcon,
-    //     listener: () => model.doSomething(),
-    //     accessibleName: a11y.controls.exampleControlStringProperty,
+    //     listener: () => model.start(),
+    //     accessibleName: a11y.controls.startButtonStringProperty,
     //   });
-    //   this.addChild(exampleButton);
-    // seed:accessible-control:end
+    //   this.addChild(startButton);
 
     // ── Reset All button ──────────────────────────────────────────────────────
     // Always position at bottom-right (PhET convention).
@@ -144,7 +124,7 @@ export class SimScreenView extends ScreenView {
   // DerivedProperty / Multilink / Property.link against model state, keep the
   // references and tear them down — forks copy what they see. Pattern:
   //
-  // private readonly disposeSimScreenView: () => void;
+  // private readonly disposeEulerScreenView: () => void;
   //
   // // in the constructor, after creating the listeners:
   // const statusMultilink = Multilink.multilink(
@@ -154,18 +134,18 @@ export class SimScreenView extends ScreenView {
   // const detailsProperty = new DerivedProperty(
   //   [model.stateProperty],
   //   (state) => `State: ${state}`,
-  // ); // → pass as currentDetailsContent in SimScreenSummaryContent
+  // ); // → pass as currentDetailsContent in EulerScreenSummaryContent
   // const onExternal = (v: number) => { /* … */ };
   // model.externalProperty.link(onExternal); // Property you do NOT own
   //
-  // this.disposeSimScreenView = () => {
+  // this.disposeEulerScreenView = () => {
   //   statusMultilink.dispose();                 // Multilink you created
   //   detailsProperty.dispose();                 // DerivedProperty you created
   //   model.externalProperty.unlink(onExternal); // undo external link
   // };
   //
   // public override dispose(): void {
-  //   this.disposeSimScreenView();
+  //   this.disposeEulerScreenView();
   //   super.dispose();
   // }
 }

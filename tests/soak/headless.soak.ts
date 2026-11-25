@@ -12,15 +12,17 @@
 
 import { StringProperty } from "scenerystack/axon";
 import { Tandem } from "scenerystack/tandem";
-// seed:soak-imports:start
-import SimColors from "../../src/SimColors.js";
-import { SimScreen } from "../../src/sim-screen/SimScreen.js";
-// seed:soak-imports:end
+import { EulerScreen } from "../../src/euler/EulerScreen.js";
+import { GrowthModelsScreen } from "../../src/growth-models/GrowthModelsScreen.js";
+import SlopeFieldsColors from "../../src/SlopeFieldsColors.js";
+import { SlopeFieldScreen } from "../../src/slope-field/SlopeFieldScreen.js";
 import { describeHeadlessSoak } from "../helpers/headlessSoak.js";
 
 describeHeadlessSoak({
-  // seed:soak-screens:start
-  screens: () => [new SimScreen({ name: new StringProperty("Sim"), tandem: Tandem.OPT_OUT })],
-  tracked: () => ({ SimColors }),
-  // seed:soak-screens:end
+  screens: () => [
+    new SlopeFieldScreen({ name: new StringProperty("Slope Field"), tandem: Tandem.OPT_OUT }),
+    new EulerScreen({ name: new StringProperty("Euler"), tandem: Tandem.OPT_OUT }),
+    new GrowthModelsScreen({ name: new StringProperty("Growth Models"), tandem: Tandem.OPT_OUT }),
+  ],
+  tracked: () => ({ SlopeFieldsColors }),
 });

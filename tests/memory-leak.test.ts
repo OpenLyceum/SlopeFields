@@ -9,11 +9,13 @@
  * tests below using forceGC().
  */
 
-// seed:leak-imports:start
-import { TimeModel } from "../src/common/TimeModel.js";
-// seed:leak-imports:end
+import { EulerModel } from "../src/euler/model/EulerModel.js";
+import { GrowthModelsModel } from "../src/growth-models/model/GrowthModelsModel.js";
+import { SlopeFieldModel } from "../src/slope-field/model/SlopeFieldModel.js";
 import { describeDisposalLeaks } from "./helpers/memoryLeak.js";
 
-// seed:leak-cases:start
-describeDisposalLeaks([{ name: "TimeModel", create: () => new TimeModel(), idempotentDispose: true }]);
-// seed:leak-cases:end
+describeDisposalLeaks([
+  { name: "SlopeFieldModel", create: () => new SlopeFieldModel() },
+  { name: "EulerModel", create: () => new EulerModel() },
+  { name: "GrowthModelsModel", create: () => new GrowthModelsModel() },
+]);
