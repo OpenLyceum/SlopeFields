@@ -1,39 +1,18 @@
 /**
  * SlopeFieldModel.ts
  *
- * The top-level model for the simulation screen.
- *
- * Add your simulation's state here using reactive Property objects from
- * scenerystack/axon. The view observes these properties and updates automatically.
- *
- * ── Example ──────────────────────────────────────────────────────────────────
- *   import { BooleanProperty, NumberProperty } from "scenerystack/axon";
- *
- *   public readonly isRunningProperty = new BooleanProperty(false);
- *   public readonly timeProperty = new NumberProperty(0);    // seconds
- *
- * ── Step cycle ────────────────────────────────────────────────────────────────
- * The Sim calls step(dt) on every animation frame. Advance your model state
- * in that method (e.g. integrate equations, update positions).
- *
- * ── Reset ─────────────────────────────────────────────────────────────────────
- * reset() is called when the user presses Reset All. Call .reset() on every
- * Property declared here.
+ * The top-level model for the Slope Field screen.
+ * Phase 1: stub only — Properties and equation wiring land in Phase 2.
  */
 import type { TModel } from "scenerystack/joist";
-import { SharedModel } from "../../common/model/SharedModel.js";
 
 export class SlopeFieldModel implements TModel {
-  /** Shared helpers — rename SharedModel to a domain type when known. */
-  public readonly shared = new SharedModel();
-
   /**
    * Resets all model state to initial values.
    * Called when the user presses the Reset All button.
    */
   public reset(): void {
-    this.shared.reset();
-    // TODO: call .reset() on every Property declared in this model
+    // Phase 2: reset equation / IC / display Properties.
   }
 
   /**
@@ -43,12 +22,7 @@ export class SlopeFieldModel implements TModel {
    * @param _dt - elapsed time in seconds since the last frame
    */
   public step(_dt: number): void {
-    // For play/pause, speed, and elapsed time, compose TimeModel instead of hand-rolling
-    // a clock: copy src/common/TimeModel.ts (and tests/TimeModel.test.ts) from
-    // SceneryStackTemplate unchanged — Baton's drift check requires an exact match —
-    // then hold one in a readonly `timer` field, step/reset/dispose it, and list it
-    // in tests/memory-leak.test.ts.
-    // TODO: advance simulation state here
+    // Slope field is static; no per-frame advance in Phase 1.
   }
 
   /** Release owned Properties / composed models. */
