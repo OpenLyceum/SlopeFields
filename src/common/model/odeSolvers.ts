@@ -24,6 +24,8 @@ const Y_ABS_CAP = 1e6;
 
 /**
  * Forward Euler: y_{n+1} = y_n + h f(x_n, y_n).
+ *
+ * @internal
  */
 export function eulerStep(f: Slope, x: number, y: number, h: number): number {
   return y + h * f(x, y);
@@ -33,6 +35,8 @@ export function eulerStep(f: Slope, x: number, y: number, h: number): number {
  * Heun / improved Euler (predictor-corrector):
  *   ŷ = y + h f(x, y)
  *   y_{n+1} = y + (h/2) [f(x, y) + f(x+h, ŷ)]
+ *
+ * @internal
  */
 export function heunStep(f: Slope, x: number, y: number, h: number): number {
   const k1 = f(x, y);
@@ -43,6 +47,8 @@ export function heunStep(f: Slope, x: number, y: number, h: number): number {
 
 /**
  * Classical fourth-order Runge–Kutta.
+ *
+ * @internal
  */
 export function rk4Step(f: Slope, x: number, y: number, h: number): number {
   const k1 = f(x, y);
@@ -89,6 +95,8 @@ function isOutOfRange(y: number, bounds: Bounds | undefined): boolean {
  * starting with [x0, y0]. Stops (without adding the bad point) when y becomes
  * non-finite, |y| > 1e6, or y leaves the optional bounds expanded by 50% of
  * their height on each side. Caps at 20 000 steps.
+ *
+ * @internal
  */
 export function integrate(
   f: Slope,

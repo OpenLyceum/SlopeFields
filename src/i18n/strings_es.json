@@ -2,7 +2,7 @@
   "title": "Campos de pendientes",
   "screens": {
     "slopeField": "Campo de pendientes",
-    "euler": "Euler",
+    "euler": "Método de Euler",
     "growthModels": "Modelos de crecimiento"
   },
   "a11y": {
@@ -15,11 +15,10 @@
     },
     "euler": {
       "screenSummary": {
-        "playArea": "El área de juego muestra el contenido principal de la simulación.",
-        "controlArea": "El área de control tiene un botón Restablecer todo que devuelve la simulación a su estado inicial.",
-        "interactionHint": "Explora la simulación interactuando con sus controles."
-      },
-      "currentDetails": "La simulación está en su estado inicial."
+        "playArea": "Una gráfica del método de Euler para una ecuación diferencial de primer orden, con la solución exacta, superposiciones opcionales de Heun y RK4, y un campo de pendientes.",
+        "controlArea": "Elige una ecuación y un tamaño de paso, avanza o reproduce el método de Euler, compáralo con Euler mejorado y RK4, y muestra la curva exacta y el campo de pendientes. Restablecer todo vuelve al estado inicial.",
+        "interactionHint": "Arrastra el punto inicial o el control de x final, elige un tamaño de paso y luego avanza o reproduce el método de Euler."
+      }
     },
     "growthModels": {
       "screenSummary": {
@@ -54,6 +53,32 @@
     "equilibriaNote": "Equilibrios: {{list}}.",
     "noEquilibriaNote": "",
     "solutionStaysInWindow": "La curva solución permanece dentro de la ventana de visualización.",
-    "solutionLeavesWindow": "La curva solución sale de la ventana de visualización."
+    "solutionLeavesWindow": "La curva solución sale de la ventana de visualización.",
+    "stepSize": "Tamaño de paso h",
+    "step": "Paso",
+    "play": "Reproducir",
+    "pause": "Pausa",
+    "showAll": "Mostrar todo",
+    "restart": "Reiniciar",
+    "halveH": "Dividir h por 2",
+    "improvedEuler": "Euler mejorado (Heun)",
+    "rk4": "RK4",
+    "slopeField": "Campo de pendientes",
+    "startPointHandle": "Punto inicial",
+    "moveStartPoint": "Mover el punto inicial",
+    "xEndHandle": "x final",
+    "moveXEnd": "Mover el x final",
+    "xEndReadout": "x_fin = {{x}}",
+    "tableN": "n",
+    "tableX": "xₙ",
+    "tableY": "yₙ",
+    "tableF": "f(xₙ,yₙ)",
+    "tableExact": "exacta",
+    "eulerReadout": "Euler en x = {{x}}: {{y}}   exacta: {{exact}}   error: {{error}}",
+    "heunError": "Error de Heun: {{error}}",
+    "rk4Error": "Error RK4: {{error}}",
+    "orderHint": "Al dividir h por 2, el error de Euler se reduce aproximadamente a la mitad (primer orden); Heun lo divide por 4; RK4 lo divide por unos 16.",
+    "eulerDetails": "h = {{h}}, pasos {{taken}} de {{n}}, actual {{point}}.",
+    "eulerDetailsError": "Error {{error}}."
   }
 }

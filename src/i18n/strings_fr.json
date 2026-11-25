@@ -2,7 +2,7 @@
   "title": "Champs de pentes",
   "screens": {
     "slopeField": "Champ de pentes",
-    "euler": "Euler",
+    "euler": "Méthode d’Euler",
     "growthModels": "Modèles de croissance"
   },
   "a11y": {
@@ -15,11 +15,10 @@
     },
     "euler": {
       "screenSummary": {
-        "playArea": "La zone de jeu affiche le contenu principal de la simulation.",
-        "controlArea": "La zone de contrôle comporte un bouton Tout réinitialiser qui ramène la simulation à son état initial.",
-        "interactionHint": "Explorez la simulation en interagissant avec ses commandes."
-      },
-      "currentDetails": "La simulation est dans son état initial."
+        "playArea": "Un graphique de la méthode d’Euler pour une équation différentielle du premier ordre, avec la solution exacte, des courbes optionnelles de Heun et RK4, et un champ de pentes.",
+        "controlArea": "Choisissez une équation et un pas, avancez ou lancez la méthode d’Euler, comparez avec Euler amélioré et RK4, et affichez la courbe exacte et le champ de pentes. Tout réinitialiser restaure l’état de départ.",
+        "interactionHint": "Faites glisser le point de départ ou la poignée de x final, choisissez un pas, puis avancez ou lancez la méthode d’Euler."
+      }
     },
     "growthModels": {
       "screenSummary": {
@@ -54,6 +53,32 @@
     "equilibriaNote": "Équilibres : {{list}}.",
     "noEquilibriaNote": "",
     "solutionStaysInWindow": "La courbe solution reste dans la fenêtre d’affichage.",
-    "solutionLeavesWindow": "La courbe solution quitte la fenêtre d’affichage."
+    "solutionLeavesWindow": "La courbe solution quitte la fenêtre d’affichage.",
+    "stepSize": "Pas h",
+    "step": "Pas",
+    "play": "Lecture",
+    "pause": "Pause",
+    "showAll": "Tout afficher",
+    "restart": "Recommencer",
+    "halveH": "Diviser h par 2",
+    "improvedEuler": "Euler amélioré (Heun)",
+    "rk4": "RK4",
+    "slopeField": "Champ de pentes",
+    "startPointHandle": "Point de départ",
+    "moveStartPoint": "Déplacer le point de départ",
+    "xEndHandle": "x final",
+    "moveXEnd": "Déplacer le x final",
+    "xEndReadout": "x_fin = {{x}}",
+    "tableN": "n",
+    "tableX": "xₙ",
+    "tableY": "yₙ",
+    "tableF": "f(xₙ,yₙ)",
+    "tableExact": "exacte",
+    "eulerReadout": "Euler en x = {{x}} : {{y}}   exacte : {{exact}}   erreur : {{error}}",
+    "heunError": "Erreur de Heun : {{error}}",
+    "rk4Error": "Erreur RK4 : {{error}}",
+    "orderHint": "Diviser h par 2 divise à peu près par 2 l’erreur d’Euler (ordre 1) ; Heun la divise par 4 ; RK4 par environ 16.",
+    "eulerDetails": "h = {{h}}, pas {{taken}} sur {{n}}, point actuel {{point}}.",
+    "eulerDetailsError": "Erreur {{error}}."
   }
 }

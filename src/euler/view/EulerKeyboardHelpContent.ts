@@ -1,30 +1,32 @@
 /**
  * EulerKeyboardHelpContent.ts
  *
- * Content for the keyboard-help dialog (the "?" button in the navigation bar).
- * The template's only interactions are buttons and Reset All, so a single
- * basic-actions section covers the available keyboard controls. When the sim
- * grows, fill the right column (pattern stubbed below).
+ * Keyboard-help dialog for Euler's Method: move the start point and xEnd
+ * handle, combo-box section, plus basic actions.
  */
 
 import {
   BasicActionsKeyboardHelpSection,
-  // SliderControlsKeyboardHelpSection,
-  // TimeControlsKeyboardHelpSection,
+  ComboBoxKeyboardHelpSection,
+  MoveDraggableItemsKeyboardHelpSection,
   TwoColumnKeyboardHelpContent,
 } from "scenerystack/scenery-phet";
+import { StringManager } from "../../i18n/StringManager.js";
 
 export class EulerKeyboardHelpContent extends TwoColumnKeyboardHelpContent {
   public constructor() {
-    const leftColumn = [new BasicActionsKeyboardHelpSection()];
-
-    // Right column — uncomment when the sim adds sliders and/or TimeControlNode:
-    // const rightColumn = [
-    //   new SliderControlsKeyboardHelpSection(),
-    //   // new TimeControlsKeyboardHelpSection(),
-    // ];
-    const rightColumn: never[] = [];
-
-    super(leftColumn, rightColumn);
+    const strings = StringManager.getInstance().getLessonStrings();
+    super(
+      [
+        new MoveDraggableItemsKeyboardHelpSection({
+          headingStringProperty: strings.moveStartPointStringProperty,
+        }),
+        new MoveDraggableItemsKeyboardHelpSection({
+          headingStringProperty: strings.moveXEndStringProperty,
+        }),
+        new ComboBoxKeyboardHelpSection(),
+      ],
+      [new BasicActionsKeyboardHelpSection()],
+    );
   }
 }

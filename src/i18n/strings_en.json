@@ -2,7 +2,7 @@
   "title": "Slope Fields",
   "screens": {
     "slopeField": "Slope Field",
-    "euler": "Euler",
+    "euler": "Euler's Method",
     "growthModels": "Growth Models"
   },
   "a11y": {
@@ -15,11 +15,10 @@
     },
     "euler": {
       "screenSummary": {
-        "playArea": "The play area shows the main simulation content.",
-        "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-        "interactionHint": "Explore the simulation by interacting with its controls."
-      },
-      "currentDetails": "The simulation is in its initial state."
+        "playArea": "A plot of Euler's method for a first-order differential equation, with the exact solution, optional Heun and RK4 overlays, and a slope field.",
+        "controlArea": "Choose an equation and step size, step or play through Euler's method, compare with Improved Euler and RK4, and toggle the exact curve and slope field. Reset All restores the starting state.",
+        "interactionHint": "Drag the starting point or the end-x handle, choose a step size, then step or play through Euler's method."
+      }
     },
     "growthModels": {
       "screenSummary": {
@@ -54,6 +53,32 @@
     "equilibriaNote": "Equilibria: {{list}}.",
     "noEquilibriaNote": "",
     "solutionStaysInWindow": "The solution curve stays inside the viewing window.",
-    "solutionLeavesWindow": "The solution curve leaves the viewing window."
+    "solutionLeavesWindow": "The solution curve leaves the viewing window.",
+    "stepSize": "Step size h",
+    "step": "Step",
+    "play": "Play",
+    "pause": "Pause",
+    "showAll": "Show all",
+    "restart": "Restart",
+    "halveH": "Halve h",
+    "improvedEuler": "Improved Euler (Heun)",
+    "rk4": "RK4",
+    "slopeField": "Slope field",
+    "startPointHandle": "Starting point",
+    "moveStartPoint": "Move starting point",
+    "xEndHandle": "End x",
+    "moveXEnd": "Move end x",
+    "xEndReadout": "x_end = {{x}}",
+    "tableN": "n",
+    "tableX": "xₙ",
+    "tableY": "yₙ",
+    "tableF": "f(xₙ,yₙ)",
+    "tableExact": "exact",
+    "eulerReadout": "Euler at x = {{x}}: {{y}}   exact: {{exact}}   error: {{error}}",
+    "heunError": "Heun error: {{error}}",
+    "rk4Error": "RK4 error: {{error}}",
+    "orderHint": "Halving h roughly halves Euler's error (first order); Heun quarters it; RK4 divides it by about 16.",
+    "eulerDetails": "h = {{h}}, steps {{taken}} of {{n}}, current {{point}}.",
+    "eulerDetailsError": "Error {{error}}."
   }
 }

@@ -113,10 +113,67 @@ export function createSlopeFieldIcon(): ScreenIcon {
   );
 }
 
+/**
+ * Exact exponential y = e^x with a 4-step Euler polyline from (0, 1) with h = 0.25.
+ */
 export function createEulerIcon(): ScreenIcon {
+  const xMin = -0.2;
+  const xMax = 1.3;
+  const yMin = 0.5;
+  const yMax = 3.2;
+  const toCanvas = (mx: number, my: number): { x: number; y: number } => ({
+    x: ((mx - xMin) / (xMax - xMin)) * W,
+    y: ((yMax - my) / (yMax - yMin)) * H,
+  });
+
+  const exact = new Shape();
+  const n = 48;
+  for (let i = 0; i <= n; i++) {
+    const mx = xMin + ((xMax - xMin) * i) / n;
+    const p = toCanvas(mx, Math.exp(mx));
+    if (i === 0) {
+      exact.moveTo(p.x, p.y);
+    } else {
+      exact.lineTo(p.x, p.y);
+    }
+  }
+
+  // Euler on y′ = y from (0, 1), h = 0.25, four steps.
+  const h = 0.25;
+  const eulerPts: Array<readonly [number, number]> = [[0, 1]];
+  for (let i = 0; i < 4; i++) {
+    const prev = eulerPts[i];
+    if (prev === undefined) {
+      break;
+    }
+    eulerPts.push([prev[0] + h, prev[1] + h * prev[1]]);
+  }
+  const euler = new Shape();
+  eulerPts.forEach(([ex, ey], i) => {
+    const p = toCanvas(ex, ey);
+    if (i === 0) {
+      euler.moveTo(p.x, p.y);
+    } else {
+      euler.lineTo(p.x, p.y);
+    }
+  });
+
   return iconFrom(
     new Node({
-      children: [background()],
+      children: [
+        background(),
+        new Path(exact, {
+          stroke: SlopeFieldsColors.tertiaryColorProperty,
+          lineWidth: 7,
+          lineCap: "round",
+        }),
+        new Path(euler, {
+          stroke: SlopeFieldsColors.accentColorProperty,
+          lineWidth: 8,
+          lineCap: "round",
+          lineJoin: "round",
+        }),
+      ],
     }),
   );
 }

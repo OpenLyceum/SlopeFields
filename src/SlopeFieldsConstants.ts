@@ -72,6 +72,31 @@ export const MAX_PINNED_CURVES = 6;
 /** |f| above this draws a vertical-ish field segment instead of normalizing (1, f). */
 export const HUGE_SLOPE = 1e3;
 
+// ── Euler's Method screen ─────────────────────────────────────────────────────
+
+/** Step size h for Euler / Heun / RK4. */
+export const STEP_SIZE_RANGE = new Range(0.05, 1);
+export const STEP_SIZE_DEFAULT = 0.2;
+
+/**
+ * Preset step sizes shown as radio buttons (largest → smallest). Each is half the
+ * previous one, so "Halve h" always lands on a preset and a button stays selected.
+ */
+export const STEP_SIZE_PRESETS = [0.8, 0.4, 0.2, 0.1, 0.05] as const;
+
+/** Real-time seconds between automatic Euler steps while playing. */
+export const PLAY_STEP_INTERVAL = 0.4;
+
+/** Minimum gap xEnd − x0. */
+export const X_END_MIN_GAP = 0.5;
+
+/** Keyboard nudge for the xEnd handle. */
+export const X_END_STEP = 0.1;
+
+/** Faint slope-field density / scale on the Euler plot. */
+export const EULER_FIELD_DENSITY = 15;
+export const EULER_FIELD_SCALE = 0.55;
+
 SlopeFieldsNamespace.register("SlopeFieldsConstants", {
   SCREEN_VIEW_MARGIN,
   PANEL_CORNER_RADIUS,
@@ -86,4 +111,12 @@ SlopeFieldsNamespace.register("SlopeFieldsConstants", {
   ISOCLINE_SLOPE_DEFAULT,
   MAX_PINNED_CURVES,
   HUGE_SLOPE,
+  STEP_SIZE_RANGE,
+  STEP_SIZE_DEFAULT,
+  STEP_SIZE_PRESETS,
+  PLAY_STEP_INTERVAL,
+  X_END_MIN_GAP,
+  X_END_STEP,
+  EULER_FIELD_DENSITY,
+  EULER_FIELD_SCALE,
 });

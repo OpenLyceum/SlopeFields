@@ -25,13 +25,8 @@ type EulerScreenOptions = ScreenOptions & { tandem: Tandem };
 export class EulerScreen extends Screen<EulerModel, EulerScreenView> {
   public constructor(options: EulerScreenOptions) {
     super(
-      // Model factory — called once when the screen is first shown
       () => new EulerModel(),
-      // View factory — receives the model instance
-      (model) =>
-        new EulerScreenView(model, {
-          tandem: options.tandem.createTandem("view"),
-        }),
+      (model) => new EulerScreenView(model),
       optionize<EulerScreenOptions, EmptySelfOptions, ScreenOptions>()(
         {
           backgroundColorProperty: SlopeFieldsColors.backgroundColorProperty,

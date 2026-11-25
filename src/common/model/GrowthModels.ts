@@ -8,7 +8,7 @@
 /** Identifiers for the four growth models. */
 export type GrowthModelId = "exponential" | "cooling" | "logistic" | "harvesting";
 
-/** Shared parameter bag (each model reads the fields it needs). */
+/** Shared parameter bag (each model reads the fields it needs). @public */
 export type GrowthParameters = {
   readonly r: number;
   readonly K: number;
@@ -16,7 +16,7 @@ export type GrowthParameters = {
   readonly harvest: number;
 };
 
-/** An equilibrium y* with local stability from the sign of f′(y*). */
+/** An equilibrium y* with local stability from the sign of f′(y*). @public */
 export type Equilibrium = {
   readonly y: number;
   readonly stability: "stable" | "unstable" | "semistable";
@@ -33,6 +33,8 @@ const DERIV_EPS = 1e-9;
  * - cooling:      y′ = −r (y − ambient)     (r > 0)
  * - logistic:     y′ = r y (1 − y/K)
  * - harvesting:   y′ = r y (1 − y/K) − harvest
+ *
+ * @public
  */
 export function growthRate(id: GrowthModelId, p: GrowthParameters): (y: number) => number {
   switch (id) {
@@ -64,6 +66,8 @@ function classify(fPrime: number): Equilibrium["stability"] {
  * Exponential with r = 0 returns [] (every y is an equilibrium). Harvesting
  * with harvest > rK/4 returns [] (no real equilibria). Harvesting exactly at
  * the critical harvest rK/4 yields one semistable equilibrium at K/2.
+ *
+ * @public
  */
 export function growthEquilibria(id: GrowthModelId, p: GrowthParameters): Equilibrium[] {
   switch (id) {
@@ -120,7 +124,7 @@ export function growthEquilibria(id: GrowthModelId, p: GrowthParameters): Equili
   }
 }
 
-/** Critical harvest rate H* = r K / 4 (onset of extinction). */
+/** Critical harvest rate H* = r K / 4 (onset of extinction). @public */
 export function criticalHarvest(p: GrowthParameters): number {
   return (p.r * p.K) / 4;
 }
@@ -132,6 +136,8 @@ export function criticalHarvest(p: GrowthParameters): number {
  * - exponential: y0 e^(r t)
  * - cooling:     ambient + (y0 − ambient) e^(−r t)
  * - logistic:    K / (1 + ((K − y0)/y0) e^(−r t)); y0 = 0 → 0
+ *
+ * @public
  */
 export function growthSolution(id: GrowthModelId, p: GrowthParameters, y0: number): ((t: number) => number) | null {
   switch (id) {
@@ -157,6 +163,8 @@ export function growthSolution(id: GrowthModelId, p: GrowthParameters, y0: numbe
  * - exponential: doubling ln 2 / r when r > 0; half-life ln 2 / |r| when r < 0; null if r = 0
  * - cooling: half-life of the temperature difference ln 2 / r
  * - logistic / harvesting: null
+ *
+ * @public
  */
 export function characteristicTime(
   id: GrowthModelId,
@@ -180,7 +188,7 @@ export function characteristicTime(
   }
 }
 
-/** Logistic inflection height K/2. */
+/** Logistic inflection height K/2. @public */
 export function logisticInflection(p: GrowthParameters): number {
   return p.K / 2;
 }
