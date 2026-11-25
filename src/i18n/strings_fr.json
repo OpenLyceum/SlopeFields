@@ -1,18 +1,17 @@
 {
-  "title": "Slope Fields",
+  "title": "Champs de pentes",
   "screens": {
-    "slopeField": "Slope Field",
+    "slopeField": "Champ de pentes",
     "euler": "Euler",
-    "growthModels": "Growth Models"
+    "growthModels": "Modèles de croissance"
   },
   "a11y": {
     "slopeField": {
       "screenSummary": {
-        "playArea": "La zone de jeu affiche le contenu principal de la simulation.",
-        "controlArea": "La zone de contrôle comporte un bouton Tout réinitialiser qui ramène la simulation à son état initial.",
-        "interactionHint": "Explorez la simulation en interagissant avec ses commandes."
-      },
-      "currentDetails": "La simulation est dans son état initial."
+        "playArea": "Un champ de pentes pour une équation différentielle du premier ordre, avec la solution passant par le point initial et, en option, la courbe exacte, les équilibres et l’isocline.",
+        "controlArea": "Choisissez une équation, affichez la solution exacte, les équilibres et l’isocline, réglez la densité et la longueur des flèches, et conservez ou effacez des courbes. Tout réinitialiser restaure l’état de départ.",
+        "interactionHint": "Faites glisser le point initial sur le graphique, ou choisissez une équation et explorez le champ de pentes."
+      }
     },
     "euler": {
       "screenSummary": {
@@ -33,5 +32,28 @@
   },
   "preferences": {
     "title": "Simulation"
+  },
+  "lesson": {
+    "equation": "Équation",
+    "exactSolution": "Solution exacte",
+    "equilibria": "Équilibres",
+    "isocline": "Isocline",
+    "isoclineSlope": "Pente de l’isocline c",
+    "arrowsPerRow": "Flèches par rangée",
+    "arrowLength": "Longueur des flèches",
+    "keepCurve": "Garder la courbe",
+    "clearCurves": "Effacer les courbes",
+    "initialPointHandle": "Point initial",
+    "moveInitialPoint": "Déplacer le point initial",
+    "initialPointReadout": "(x₀, y₀) = ({{x}}, {{y}})",
+    "slopeAtInitial": "y′(x₀) = {{slope}}",
+    "equilibriumLabel": "y = {{c}}",
+    "stable": "stable",
+    "unstable": "instable",
+    "semistable": "semi-stable",
+    "equilibriaNote": "Équilibres : {{list}}.",
+    "noEquilibriaNote": "",
+    "solutionStaysInWindow": "La courbe solution reste dans la fenêtre d’affichage.",
+    "solutionLeavesWindow": "La courbe solution quitte la fenêtre d’affichage."
   }
 }

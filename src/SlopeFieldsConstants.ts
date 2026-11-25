@@ -17,6 +17,7 @@
  * Remove the example constants below and replace them with the sim's own.
  */
 
+import { Range, Vector2 } from "scenerystack/dot";
 import SlopeFieldsNamespace from "./SlopeFieldsNamespace.js";
 
 // ── Layout / chrome (screen pixels) ───────────────────────────────────────────
@@ -40,13 +41,49 @@ export const LAYOUT = {
   plotWidth: 610,
   plotHeight: 360,
   panelWidth: 320,
-  panelHeight: 430,
+  panelHeight: 480,
   top: 107,
   notesGap: 14,
 };
+
+// ── Slope Field screen ────────────────────────────────────────────────────────
+
+/** Default initial condition (x₀, y₀) for the Slope Field screen. */
+export const INITIAL_POINT_DEFAULT = new Vector2(0, 0.5);
+
+/** Keyboard / nudge step for the initial-point handle (model units). */
+export const INITIAL_POINT_STEP = 0.1;
+
+/** Arrows per row on the slope-field grid (odd integers 9…31). */
+export const DENSITY_RANGE = new Range(9, 31);
+export const DENSITY_DEFAULT = 21;
+
+/** Segment length as a fraction of the grid cell size. */
+export const SEGMENT_SCALE_RANGE = new Range(0.3, 1);
+export const SEGMENT_SCALE_DEFAULT = 0.7;
+
+/** Isocline level-set slope c. */
+export const ISOCLINE_SLOPE_RANGE = new Range(-3, 3);
+export const ISOCLINE_SLOPE_DEFAULT = 0;
+
+/** Maximum number of pinned solution curves on the Slope Field screen. */
+export const MAX_PINNED_CURVES = 6;
+
+/** |f| above this draws a vertical-ish field segment instead of normalizing (1, f). */
+export const HUGE_SLOPE = 1e3;
 
 SlopeFieldsNamespace.register("SlopeFieldsConstants", {
   SCREEN_VIEW_MARGIN,
   PANEL_CORNER_RADIUS,
   LAYOUT,
+  INITIAL_POINT_DEFAULT,
+  INITIAL_POINT_STEP,
+  DENSITY_RANGE,
+  DENSITY_DEFAULT,
+  SEGMENT_SCALE_RANGE,
+  SEGMENT_SCALE_DEFAULT,
+  ISOCLINE_SLOPE_RANGE,
+  ISOCLINE_SLOPE_DEFAULT,
+  MAX_PINNED_CURVES,
+  HUGE_SLOPE,
 });

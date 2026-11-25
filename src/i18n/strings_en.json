@@ -8,11 +8,10 @@
   "a11y": {
     "slopeField": {
       "screenSummary": {
-        "playArea": "The play area shows the main simulation content.",
-        "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-        "interactionHint": "Explore the simulation by interacting with its controls."
-      },
-      "currentDetails": "The simulation is in its initial state."
+        "playArea": "A slope field for a first-order differential equation, with the solution through the initial point and optional exact curve, equilibria, and isocline.",
+        "controlArea": "Choose an equation, toggle exact solution, equilibria, and isocline, adjust arrow density and length, and keep or clear solution curves. Reset All restores the starting state.",
+        "interactionHint": "Drag the initial point on the graph, or choose an equation and explore the slope field."
+      }
     },
     "euler": {
       "screenSummary": {
@@ -33,5 +32,28 @@
   },
   "preferences": {
     "title": "Simulation"
+  },
+  "lesson": {
+    "equation": "Equation",
+    "exactSolution": "Exact solution",
+    "equilibria": "Equilibria",
+    "isocline": "Isocline",
+    "isoclineSlope": "Isocline slope c",
+    "arrowsPerRow": "Arrows per row",
+    "arrowLength": "Arrow length",
+    "keepCurve": "Keep curve",
+    "clearCurves": "Clear curves",
+    "initialPointHandle": "Initial point",
+    "moveInitialPoint": "Move initial point",
+    "initialPointReadout": "(x₀, y₀) = ({{x}}, {{y}})",
+    "slopeAtInitial": "y′(x₀) = {{slope}}",
+    "equilibriumLabel": "y = {{c}}",
+    "stable": "stable",
+    "unstable": "unstable",
+    "semistable": "semistable",
+    "equilibriaNote": "Equilibria: {{list}}.",
+    "noEquilibriaNote": "",
+    "solutionStaysInWindow": "The solution curve stays inside the viewing window.",
+    "solutionLeavesWindow": "The solution curve leaves the viewing window."
   }
 }

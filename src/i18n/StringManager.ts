@@ -88,6 +88,11 @@ export class StringManager {
     };
   }
 
+  /** Shared lesson control / note labels for the Slope Field (and later) screens. */
+  public getLessonStrings() {
+    return stringProperties.lesson;
+  }
+
   /** Accessibility strings for the Slope Field screen. */
   public getSlopeFieldA11yStrings() {
     return stringProperties.a11y.slopeField;

@@ -5,8 +5,12 @@
  * Phase 1: stub only — growth-parameter Properties land in Phase 4.
  */
 import type { TModel } from "scenerystack/joist";
+import { GROWTH_MODEL_IDS, type GrowthModelId } from "../../common/model/GrowthModels.js";
 
 export class GrowthModelsModel implements TModel {
+  /** Catalog ids kept reachable until Phase 4 wires a Property. */
+  public readonly modelIds: readonly GrowthModelId[] = GROWTH_MODEL_IDS;
+
   /**
    * Resets all model state to initial values.
    * Called when the user presses the Reset All button.

@@ -1,18 +1,17 @@
 {
-  "title": "Slope Fields",
+  "title": "Campos de pendientes",
   "screens": {
-    "slopeField": "Slope Field",
+    "slopeField": "Campo de pendientes",
     "euler": "Euler",
-    "growthModels": "Growth Models"
+    "growthModels": "Modelos de crecimiento"
   },
   "a11y": {
     "slopeField": {
       "screenSummary": {
-        "playArea": "El área de juego muestra el contenido principal de la simulación.",
-        "controlArea": "El área de control tiene un botón Restablecer todo que devuelve la simulación a su estado inicial.",
-        "interactionHint": "Explora la simulación interactuando con sus controles."
-      },
-      "currentDetails": "La simulación está en su estado inicial."
+        "playArea": "Un campo de pendientes para una ecuación diferencial de primer orden, con la solución que pasa por el punto inicial y, de forma opcional, la curva exacta, los equilibrios y la isoclina.",
+        "controlArea": "Elige una ecuación, muestra la solución exacta, los equilibrios y la isoclina, ajusta la densidad y la longitud de las flechas, y guarda o borra curvas. Restablecer todo vuelve al estado inicial.",
+        "interactionHint": "Arrastra el punto inicial en la gráfica, o elige una ecuación y explora el campo de pendientes."
+      }
     },
     "euler": {
       "screenSummary": {
@@ -33,5 +32,28 @@
   },
   "preferences": {
     "title": "Simulación"
+  },
+  "lesson": {
+    "equation": "Ecuación",
+    "exactSolution": "Solución exacta",
+    "equilibria": "Equilibrios",
+    "isocline": "Isoclina",
+    "isoclineSlope": "Pendiente de la isoclina c",
+    "arrowsPerRow": "Flechas por fila",
+    "arrowLength": "Longitud de las flechas",
+    "keepCurve": "Guardar curva",
+    "clearCurves": "Borrar curvas",
+    "initialPointHandle": "Punto inicial",
+    "moveInitialPoint": "Mover el punto inicial",
+    "initialPointReadout": "(x₀, y₀) = ({{x}}, {{y}})",
+    "slopeAtInitial": "y′(x₀) = {{slope}}",
+    "equilibriumLabel": "y = {{c}}",
+    "stable": "estable",
+    "unstable": "inestable",
+    "semistable": "semiestable",
+    "equilibriaNote": "Equilibrios: {{list}}.",
+    "noEquilibriaNote": "",
+    "solutionStaysInWindow": "La curva solución permanece dentro de la ventana de visualización.",
+    "solutionLeavesWindow": "La curva solución sale de la ventana de visualización."
   }
 }

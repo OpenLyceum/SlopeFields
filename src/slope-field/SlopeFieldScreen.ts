@@ -28,10 +28,7 @@ export class SlopeFieldScreen extends Screen<SlopeFieldModel, SlopeFieldScreenVi
       // Model factory — called once when the screen is first shown
       () => new SlopeFieldModel(),
       // View factory — receives the model instance
-      (model) =>
-        new SlopeFieldScreenView(model, {
-          tandem: options.tandem.createTandem("view"),
-        }),
+      (model) => new SlopeFieldScreenView(model),
       optionize<SlopeFieldScreenOptions, EmptySelfOptions, ScreenOptions>()(
         {
           backgroundColorProperty: SlopeFieldsColors.backgroundColorProperty,

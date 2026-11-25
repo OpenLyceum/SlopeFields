@@ -1,151 +1,338 @@
 /**
  * SlopeFieldScreenView.ts
  *
- * The top-level view for the simulation screen.
- *
- * All visual nodes are added here. Follow these conventions:
- *   - Use this.layoutBounds for positioning (never magic pixel values)
- *   - Keep a ResetAllButton that calls model.reset() and this.reset()
- *   - Override step(dt) for frame-by-frame animation
- *
- * ── Adding content ────────────────────────────────────────────────────────────
- * 1. Create Node subclasses in separate files (e.g. SlopeFieldsControlPanel.ts)
- * 2. Instantiate them here and call this.addChild(...)
- * 3. Link them to model properties:
- *      model.isRunningProperty.link( isRunning => { ... } );
- *
- * ── Layout bounds ─────────────────────────────────────────────────────────────
- * SceneryStack uses a virtual 1024×618 coordinate space by default.
- * this.layoutBounds gives you the full rectangle; use it for alignment:
- *   center, minX, maxX, minY, maxY, width, height
+ * Lesson view for the Slope Field screen: slope-field Path, solution curves,
+ * equilibria / isocline overlays, initial-point handle, and control panel.
  */
 
-import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
-import { Node, Rectangle } from "scenerystack/scenery";
-import { ResetAllButton } from "scenerystack/scenery-phet";
-import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
-import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/SlopeFieldsButtonOptions.js";
-import SlopeFieldsColors from "../../SlopeFieldsColors.js";
-import { SCREEN_VIEW_MARGIN } from "../../SlopeFieldsConstants.js";
+import { Multilink } from "scenerystack/axon";
+import { Vector2 } from "scenerystack/dot";
+import { localeProperty } from "scenerystack/joist";
+import { StringUtils } from "scenerystack/phetcommon";
+import { Text } from "scenerystack/scenery";
+import {
+  button,
+  type Choice,
+  checkbox,
+  column,
+  comboBox,
+  computed,
+  format,
+  LessonView,
+  type Plot,
+  richText,
+  row,
+  slider,
+  text,
+} from "../../common/LessonView.js";
+import { EQUATIONS, isocline } from "../../common/model/EquationLibrary.js";
+import { traceSolution } from "../../common/model/odeSolvers.js";
+import { SlopeFieldNode } from "../../common/SlopeFieldNode.js";
+import { StringManager } from "../../i18n/StringManager.js";
+import Colors from "../../SlopeFieldsColors.js";
+import { INITIAL_POINT_STEP } from "../../SlopeFieldsConstants.js";
 import type { SlopeFieldModel } from "../model/SlopeFieldModel.js";
-import { SlopeFieldScreenSummaryContent } from "./SlopeFieldScreenSummaryContent.js";
 
-export type SlopeFieldScreenViewOptions = ScreenViewOptions;
+/** Classify an autonomous equilibrium by the sign of f just below / above c. */
+function classifyEquilibrium(f: (x: number, y: number) => number, c: number): "stable" | "unstable" | "semistable" {
+  const below = f(0, c - 1e-3);
+  const above = f(0, c + 1e-3);
+  const upBelow = below > 0;
+  const downAbove = above < 0;
+  if (upBelow && downAbove) {
+    return "stable";
+  }
+  if (!(upBelow || downAbove)) {
+    return "unstable";
+  }
+  return "semistable";
+}
 
-export class SlopeFieldScreenView extends ScreenView {
-  public constructor(model: SlopeFieldModel, providedOptions?: SlopeFieldScreenViewOptions) {
-    // ── Accessibility: screen summary ───────────────────────────────────────────
-    // The screen summary is the first thing a screen-reader user encounters. It
-    // is registered here, in the ScreenView's super() options, so every sim wires
-    // it the same way. See SlopeFieldScreenSummaryContent for the four content regions.
-    const options = optionize<SlopeFieldScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
-      {
-        screenSummaryContent: new SlopeFieldScreenSummaryContent(model),
-      },
-      providedOptions,
-    );
-    super(options);
+/** True when the numerical trace fails to span the full x-window or exits the y-window. */
+function solutionLeavesWindow(
+  points: ReadonlyArray<readonly [number, number]>,
+  domain: { xMin: number; xMax: number; yMin: number; yMax: number },
+): boolean {
+  const first = points[0];
+  const last = points[points.length - 1];
+  if (first === undefined || last === undefined) {
+    return true;
+  }
+  const h = (domain.xMax - domain.xMin) / 400;
+  if (first[0] > domain.xMin + 2 * h || last[0] < domain.xMax - 2 * h) {
+    return true;
+  }
+  for (const [, y] of points) {
+    if (y < domain.yMin || y > domain.yMax) {
+      return true;
+    }
+  }
+  return false;
+}
 
-    // ── Background ────────────────────────────────────────────────────────────
-    // A full-screen rectangle that follows the active color profile.
-    // Replace or remove once you add real content.
-    const backgroundRect = new Rectangle(0, 0, this.layoutBounds.width, this.layoutBounds.height, {
-      fill: SlopeFieldsColors.backgroundColorProperty,
+export class SlopeFieldScreenView extends LessonView {
+  private readonly fieldNode = new SlopeFieldNode();
+  private readonly model: SlopeFieldModel;
+  private readonly initialHandle: ReturnType<Plot["handle"]>;
+
+  public constructor(model: SlopeFieldModel) {
+    const manager = StringManager.getInstance();
+    const strings = manager.getLessonStrings();
+    const names = manager.getScreenNames();
+    const summary = manager.getSlopeFieldA11yStrings().screenSummary;
+
+    const dependencies = [
+      model.equationIdProperty,
+      model.initialPointProperty,
+      model.densityProperty,
+      model.segmentScaleProperty,
+      model.showIsoclineProperty,
+      model.isoclineSlopeProperty,
+      model.showEquilibriaProperty,
+      model.showExactProperty,
+      model.pinnedCurves.lengthProperty,
+    ] as const;
+
+    const details = computed([...dependencies], () => {
+      const eq = model.equation;
+      const { x, y } = model.initialPointProperty.value;
+      const leaves = solutionLeavesWindow(model.currentSolution, eq.domain);
+      const windowNote = leaves
+        ? strings.solutionLeavesWindowStringProperty.value
+        : strings.solutionStaysInWindowStringProperty.value;
+      return `${eq.latex}. (x₀, y₀) = (${format(x)}, ${format(y)}). ${windowNote}`;
     });
-    this.addChild(backgroundRect);
 
-    // ── Accessibility: per-control names ────────────────────────────────────────
-    // EVERY interactive node must carry an `accessibleName` (and an
-    // `accessibleHelpText` where useful), sourced from the StringManager `a11y`
-    // string group — never a hard-coded English literal. Sun/scenery-phet controls
-    // (NumberControl, Checkbox, ComboBox, AquaRadioButtonGroup, …) accept it as an
-    // option; a draggable plain Node needs `tagName: "div", focusable: true` too.
-    // Example (uncomment and adapt when you add a real control; add the
-    // `a11y.controls.startButton` string to every strings_*.json first):
-    //
-    //   const a11y = StringManager.getInstance().getA11yStrings();
-    //   const startButton = new RectangularPushButton({
-    //     ...FLAT_RECTANGULAR_BUTTON_OPTIONS, // flat appearance, not SceneryStack's default 3-D look
-    //     content: someIcon,
-    //     listener: () => model.start(),
-    //     accessibleName: a11y.controls.startButtonStringProperty,
-    //   });
-    //   this.addChild(startButton);
-
-    // ── Reset All button ──────────────────────────────────────────────────────
-    // Always position at bottom-right (PhET convention).
-    const resetAllButton = new ResetAllButton({
-      ...FLAT_RESET_ALL_BUTTON_OPTIONS,
-      listener: () => {
-        model.reset();
-        this.reset();
-      },
-      right: this.layoutBounds.maxX - SCREEN_VIEW_MARGIN,
-      bottom: this.layoutBounds.maxY - SCREEN_VIEW_MARGIN,
+    super({
+      title: names.slopeFieldStringProperty,
+      hint: summary.interactionHintStringProperty,
+      playDescription: summary.playAreaStringProperty,
+      controlDescription: summary.controlAreaStringProperty,
+      details,
     });
-    this.addChild(resetAllButton);
+    this.model = model;
 
-    // ── Accessibility: keyboard / reading traversal order ───────────────────────
-    // Make the parallel DOM (Tab order and screen-reader reading order)
-    // deterministic and independent of child z-order. ScreenView throws if you
-    // set pdomOrder on itself, so add a lightweight wrapper Node that "borrows"
-    // the interactive nodes in the order a user should reach them — Reset All
-    // last. Non-interactive decoration (background, placeholder) is omitted.
-    this.addChild(
-      new Node({
-        pdomOrder: [
-          // TODO: add the sim's interactive nodes here, in traversal order
-          resetAllButton,
-        ],
-      }),
+    const equationChoices: Choice<string>[] = EQUATIONS.map((eq) => ({
+      value: eq.id,
+      label: eq.latex,
+      name: eq.latex,
+    }));
+    const equationBox = comboBox(
+      model.equationIdProperty,
+      equationChoices,
+      this.listParent,
+      strings.equationStringProperty,
+      292,
     );
+
+    const exactCheckbox = checkbox(model.showExactProperty, strings.exactSolutionStringProperty);
+    const equilibriaCheckbox = checkbox(model.showEquilibriaProperty, strings.equilibriaStringProperty);
+    const isoclineCheckbox = checkbox(model.showIsoclineProperty, strings.isoclineStringProperty);
+
+    const isoclineSlider = slider(
+      strings.isoclineSlopeStringProperty,
+      model.isoclineSlopeProperty,
+      -3,
+      3,
+      1,
+      undefined,
+      0.5,
+    );
+    const densitySlider = slider(strings.arrowsPerRowStringProperty, model.densityProperty, 9, 31, 0, undefined, 2);
+    const scaleSlider = slider(
+      strings.arrowLengthStringProperty,
+      model.segmentScaleProperty,
+      0.3,
+      1,
+      1,
+      undefined,
+      0.1,
+    );
+
+    const keepButton = button(strings.keepCurveStringProperty, () => model.keepCurve());
+    const clearButton = button(strings.clearCurvesStringProperty, () => model.clearCurves());
+
+    Multilink.multilink([model.equationIdProperty], () => {
+      const eq = model.equation;
+      exactCheckbox.enabledProperty.value = eq.exact !== undefined;
+      equilibriaCheckbox.enabledProperty.value = eq.equilibria.length > 0;
+    });
+    Multilink.multilink([model.showIsoclineProperty], (show) => {
+      isoclineSlider.enabled = show;
+    });
+    Multilink.multilink([model.pinnedCurves.lengthProperty], (n) => {
+      clearButton.enabled = n > 0;
+    });
+
+    const controls = column(
+      equationBox,
+      exactCheckbox,
+      equilibriaCheckbox,
+      isoclineCheckbox,
+      isoclineSlider,
+      densitySlider,
+      scaleSlider,
+      row(keepButton, clearButton),
+    );
+
+    const equationLine = computed([model.equationIdProperty], () => model.equation.latex);
+    const pointLine = computed([model.initialPointProperty, strings.initialPointReadoutStringProperty], () => {
+      const { x, y } = model.initialPointProperty.value;
+      return StringUtils.fillIn(strings.initialPointReadoutStringProperty.value, {
+        x: format(x),
+        y: format(y),
+      });
+    });
+    const slopeLine = computed(
+      [model.equationIdProperty, model.initialPointProperty, strings.slopeAtInitialStringProperty],
+      () => {
+        const eq = model.equation;
+        const { x, y } = model.initialPointProperty.value;
+        const slope = eq.f(x, y);
+        return StringUtils.fillIn(strings.slopeAtInitialStringProperty.value, {
+          slope: Number.isFinite(slope) ? format(slope) : "—",
+        });
+      },
+    );
+    const equilibriaNote = computed(
+      [
+        model.equationIdProperty,
+        strings.equilibriaNoteStringProperty,
+        strings.stableStringProperty,
+        strings.unstableStringProperty,
+        strings.semistableStringProperty,
+        strings.noEquilibriaNoteStringProperty,
+      ],
+      () => {
+        const eq = model.equation;
+        if (!eq.autonomous || eq.equilibria.length === 0) {
+          return strings.noEquilibriaNoteStringProperty.value;
+        }
+        const parts = eq.equilibria.map((c) => {
+          const kind = classifyEquilibrium(eq.f, c);
+          const label =
+            kind === "stable"
+              ? strings.stableStringProperty.value
+              : kind === "unstable"
+                ? strings.unstableStringProperty.value
+                : strings.semistableStringProperty.value;
+          return `y = ${format(c)} (${label})`;
+        });
+        return StringUtils.fillIn(strings.equilibriaNoteStringProperty.value, {
+          list: parts.join("; "),
+        });
+      },
+    );
+
+    const notes = column(
+      richText(equationLine, 16, this.notesWidth, true),
+      text(pointLine, 15, this.notesWidth),
+      text(slopeLine, 15, this.notesWidth),
+      richText(equilibriaNote, 14, this.notesWidth, false, true),
+    );
+
+    this.finish(controls, notes, () => model.reset());
+
+    const plot = this.plot;
+    const clampPoint = (x: number, y: number) => {
+      const { xMin, xMax, yMin, yMax } = model.equation.domain;
+      model.initialPointProperty.value = new Vector2(
+        Math.max(xMin, Math.min(xMax, x)),
+        Math.max(yMin, Math.min(yMax, y)),
+      );
+    };
+
+    plot.onDrag((x, y) => clampPoint(x, y));
+
+    this.initialHandle = plot.handle({
+      drag: (px, py) => clampPoint(plot.modelX(px), plot.modelY(py)),
+      keyboard: {
+        name: strings.initialPointHandleStringProperty,
+        direction: "both",
+        step: (dx, dy) => {
+          const p = model.initialPointProperty.value;
+          clampPoint(p.x + dx * INITIAL_POINT_STEP, p.y + dy * INITIAL_POINT_STEP);
+        },
+      },
+      readout: () => {
+        const { x, y } = model.initialPointProperty.value;
+        return StringUtils.fillIn(strings.initialPointReadoutStringProperty.value, {
+          x: format(x),
+          y: format(y),
+        });
+      },
+    });
+
+    Multilink.multilink([localeProperty, ...dependencies], () => this.redraw());
   }
 
-  /**
-   * Resets view-side state (animations, panel visibility, etc.).
-   * Called by the Reset All button listener.
-   */
-  public reset(): void {
-    // TODO: reset any view-side state here
-  }
+  private redraw(): void {
+    const model = this.model;
+    const plot = this.plot;
+    const eq = model.equation;
+    const domain = eq.domain;
+    const { xMin, xMax, yMin, yMax } = domain;
 
-  /**
-   * Steps the view forward by dt seconds for animation.
-   * @param _dt - elapsed time in seconds
-   */
-  public override step(_dt: number): void {
-    // TODO: implement animation updates here
-  }
+    plot.setDomain([xMin, xMax, yMin, yMax], "x", "y");
 
-  // ── Accessibility / listeners: dispose ─────────────────────────────────────
-  // ScreenView is `isDisposable: false` and lives for the whole sim, so this
-  // class rarely needs dispose(). Child Nodes (and a live currentDetails
-  // DerivedProperty you own on a short-lived object) do. When you add
-  // DerivedProperty / Multilink / Property.link against model state, keep the
-  // references and tear them down — forks copy what they see. Pattern:
-  //
-  // private readonly disposeSlopeFieldScreenView: () => void;
-  //
-  // // in the constructor, after creating the listeners:
-  // const statusMultilink = Multilink.multilink(
-  //   [model.someProperty, model.otherProperty],
-  //   (a, b) => { /* update view from model */ },
-  // );
-  // const detailsProperty = new DerivedProperty(
-  //   [model.stateProperty],
-  //   (state) => `State: ${state}`,
-  // ); // → pass as currentDetailsContent in SlopeFieldScreenSummaryContent
-  // const onExternal = (v: number) => { /* … */ };
-  // model.externalProperty.link(onExternal); // Property you do NOT own
-  //
-  // this.disposeSlopeFieldScreenView = () => {
-  //   statusMultilink.dispose();                 // Multilink you created
-  //   detailsProperty.dispose();                 // DerivedProperty you created
-  //   model.externalProperty.unlink(onExternal); // undo external link
-  // };
-  //
-  // public override dispose(): void {
-  //   this.disposeSlopeFieldScreenView();
-  //   super.dispose();
-  // }
+    if (this.fieldNode.parent) {
+      this.fieldNode.parent.removeChild(this.fieldNode);
+    }
+    plot.clear();
+
+    this.fieldNode.update(plot, eq.f, domain, model.densityProperty.value, model.segmentScaleProperty.value);
+    plot.layers.addChild(this.fieldNode);
+
+    const h = (xMax - xMin) / 400;
+    for (const pinned of model.pinnedCurves) {
+      plot.line(traceSolution(eq.f, pinned.x0, pinned.y0, domain, h), Colors.secondaryColorProperty, 2);
+    }
+    plot.line(model.currentSolution, Colors.accentColorProperty, 3);
+
+    if (model.showExactProperty.value && eq.exact) {
+      const { x, y } = model.initialPointProperty.value;
+      const exactFn = eq.exact(x, y);
+      const count = 400;
+      const points: Array<readonly [number, number]> = [];
+      for (let i = 0; i <= count; i++) {
+        const xi = xMin + ((xMax - xMin) * i) / count;
+        points.push([xi, exactFn(xi)]);
+      }
+      plot.line(points, Colors.tertiaryColorProperty, 2, [6, 4]);
+    }
+
+    if (model.showEquilibriaProperty.value && eq.equilibria.length > 0) {
+      const strings = StringManager.getInstance().getLessonStrings();
+      for (const c of eq.equilibria) {
+        plot.line(
+          [
+            [xMin, c],
+            [xMax, c],
+          ],
+          Colors.quaternaryColorProperty,
+          2,
+        );
+        const label = new Text(StringUtils.fillIn(strings.equilibriumLabelStringProperty.value, { c: format(c) }), {
+          font: "12px sans-serif",
+          fill: Colors.quaternaryColorProperty,
+          pickable: false,
+        });
+        label.right = plot.plotX(xMax) - 8;
+        label.centerY = plot.plotY(c) - 10;
+        plot.layers.addChild(label);
+      }
+    }
+
+    if (model.showIsoclineProperty.value) {
+      // positiveFill (#204859) has weak contrast on the panel (#16213e); use quaternary
+      // with a longer dash than equilibria (solid) so the isocline stays distinct.
+      const pieces = isocline(eq, model.isoclineSlopeProperty.value, domain);
+      for (const poly of pieces) {
+        plot.line(poly, Colors.quaternaryColorProperty, 1.5, [6, 3]);
+      }
+    }
+
+    const { x, y } = model.initialPointProperty.value;
+    this.initialHandle.place(plot.plotX(x), plot.plotY(y));
+  }
 }
