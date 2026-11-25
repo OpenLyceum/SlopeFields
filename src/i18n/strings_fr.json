@@ -22,11 +22,10 @@
     },
     "growthModels": {
       "screenSummary": {
-        "playArea": "La zone de jeu affiche le contenu principal de la simulation.",
-        "controlArea": "La zone de contrôle comporte un bouton Tout réinitialiser qui ramène la simulation à son état initial.",
-        "interactionHint": "Explorez la simulation en interagissant avec ses commandes."
-      },
-      "currentDetails": "La simulation est dans son état initial."
+        "playArea": "Un graphique de la population ou de la température en fonction du temps pour un modèle de croissance autonome, avec équilibres, champ de directions et ligne de phase f(y) en option.",
+        "controlArea": "Choisissez un modèle de croissance, ajustez ses paramètres, et affichez la ligne de phase, les équilibres et le champ de directions. Tout réinitialiser restaure la croissance logistique.",
+        "interactionHint": "Choisissez un modèle, faites glisser la valeur initiale sur l’axe t = 0, et explorez les équilibres sur la ligne de phase."
+      }
     }
   },
   "preferences": {
@@ -79,6 +78,46 @@
     "rk4Error": "Erreur RK4 : {{error}}",
     "orderHint": "Diviser h par 2 divise à peu près par 2 l’erreur d’Euler (ordre 1) ; Heun la divise par 4 ; RK4 par environ 16.",
     "eulerDetails": "h = {{h}}, pas {{taken}} sur {{n}}, point actuel {{point}}.",
-    "eulerDetailsError": "Erreur {{error}}."
+    "eulerDetailsError": "Erreur {{error}}.",
+    "model": "Modèle",
+    "exponentialGrowth": "Croissance / décroissance exponentielle",
+    "newtonsCooling": "Loi de refroidissement de Newton",
+    "logisticGrowth": "Croissance logistique",
+    "logisticHarvesting": "Logistique avec prélèvement",
+    "growthRateR": "Taux de croissance r",
+    "coolingRateR": "Taux de refroidissement r",
+    "carryingCapacityK": "Capacité porteuse K",
+    "ambientTemperature": "Ambiante Ta",
+    "harvestRateH": "Prélèvement H",
+    "initialPopulation": "P₀ initial",
+    "initialTemperature": "T₀ initiale",
+    "initialValue": "y₀ initial",
+    "timeMax": "t max",
+    "phaseLine": "Ligne de phase",
+    "directionField": "Champ de directions",
+    "y0Handle": "Valeur initiale",
+    "moveY0": "Déplacer la valeur initiale",
+    "y0Readout": "y₀ = {{y}}",
+    "p0Readout": "P₀ = {{y}}",
+    "t0Readout": "T₀ = {{y}}",
+    "axisT": "t",
+    "axisP": "P",
+    "axisTemp": "T (°C)",
+    "axisY": "y",
+    "axisF": "f(y)",
+    "kOver2": "K/2",
+    "doublingTime": "Temps de doublement : {{t}}",
+    "halfLife": "Demi-vie : {{t}}",
+    "inflectionHeight": "Hauteur d’inflexion K/2 = {{value}}",
+    "criticalHarvest": "Prélèvement critique rK/4 = {{value}}",
+    "extinctionWarning": "Aucun équilibre : un prélèvement plus rapide que rK/4 = {{value}} mène la population à l’extinction",
+    "extinctionTime": "Temps d’extinction : {{t}}",
+    "harvestingNumerical": "La forme fermée n’est pas affichée ; la courbe est numérique.",
+    "odeExponential": "dP/dt = {{r}} P   ⇒   P(t) = {{y0}} e<sup>{{rExp}}</sup>",
+    "odeCooling": "dT/dt = −{{r}} (T − {{ambient}})   ⇒   T(t) = {{ambient}} + ({{y0}} − {{ambient}}) e<sup>−{{r}} t</sup>",
+    "odeLogistic": "dP/dt = {{r}} P (1 − P/{{K}})   ⇒   P(t) = {{K}} / (1 + {{ratio}} e<sup>−{{r}} t</sup>)",
+    "odeHarvesting": "dP/dt = {{r}} P (1 − P/{{K}}) − {{H}}",
+    "equilibriumLabeled": "{{y}} ({{stability}})",
+    "growthDetails": "{{model}} : {{params}}. Équilibres : {{equilibria}}."
   }
 }

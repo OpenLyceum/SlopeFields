@@ -178,10 +178,55 @@ export function createEulerIcon(): ScreenIcon {
   );
 }
 
+/**
+ * Logistic S-curve with its carrying-capacity line K (Growth Models motif).
+ */
 export function createGrowthModelsIcon(): ScreenIcon {
+  const xMin = -0.5;
+  const xMax = 6;
+  const yMin = -0.2;
+  const yMax = 1.3;
+  const toCanvas = (mx: number, my: number): { x: number; y: number } => ({
+    x: ((mx - xMin) / (xMax - xMin)) * W,
+    y: ((yMax - my) / (yMax - yMin)) * H,
+  });
+
+  const K = 1;
+  const kLine = new Shape();
+  const a = toCanvas(xMin, K);
+  const b = toCanvas(xMax, K);
+  kLine.moveTo(a.x, a.y);
+  kLine.lineTo(b.x, b.y);
+
+  // Logistic through (0, 0.1): y = 1 / (1 + 9 e^{−x}).
+  const curve = new Shape();
+  const n = 48;
+  for (let i = 0; i <= n; i++) {
+    const mx = xMin + ((xMax - xMin) * i) / n;
+    const my = 1 / (1 + 9 * Math.exp(-mx));
+    const p = toCanvas(mx, my);
+    if (i === 0) {
+      curve.moveTo(p.x, p.y);
+    } else {
+      curve.lineTo(p.x, p.y);
+    }
+  }
+
   return iconFrom(
     new Node({
-      children: [background()],
+      children: [
+        background(),
+        new Path(kLine, {
+          stroke: SlopeFieldsColors.tertiaryColorProperty,
+          lineWidth: 5,
+          lineDash: [14, 10],
+        }),
+        new Path(curve, {
+          stroke: SlopeFieldsColors.accentColorProperty,
+          lineWidth: 8,
+          lineCap: "round",
+        }),
+      ],
     }),
   );
 }

@@ -25,13 +25,8 @@ type GrowthModelsScreenOptions = ScreenOptions & { tandem: Tandem };
 export class GrowthModelsScreen extends Screen<GrowthModelsModel, GrowthModelsScreenView> {
   public constructor(options: GrowthModelsScreenOptions) {
     super(
-      // Model factory — called once when the screen is first shown
       () => new GrowthModelsModel(),
-      // View factory — receives the model instance
-      (model) =>
-        new GrowthModelsScreenView(model, {
-          tandem: options.tandem.createTandem("view"),
-        }),
+      (model) => new GrowthModelsScreenView(model),
       optionize<GrowthModelsScreenOptions, EmptySelfOptions, ScreenOptions>()(
         {
           backgroundColorProperty: SlopeFieldsColors.backgroundColorProperty,

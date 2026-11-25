@@ -22,11 +22,10 @@
     },
     "growthModels": {
       "screenSummary": {
-        "playArea": "The play area shows the main simulation content.",
-        "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-        "interactionHint": "Explore the simulation by interacting with its controls."
-      },
-      "currentDetails": "The simulation is in its initial state."
+        "playArea": "A plot of population or temperature versus time for an autonomous growth model, with optional equilibria, direction field, and a phase line of f(y) versus y.",
+        "controlArea": "Choose a growth model, adjust its parameters, and toggle the phase line, equilibria, and direction field. Reset All restores logistic growth defaults.",
+        "interactionHint": "Choose a model, drag the initial value on the t = 0 axis, and explore equilibria on the phase line."
+      }
     }
   },
   "preferences": {
@@ -79,6 +78,46 @@
     "rk4Error": "RK4 error: {{error}}",
     "orderHint": "Halving h roughly halves Euler's error (first order); Heun quarters it; RK4 divides it by about 16.",
     "eulerDetails": "h = {{h}}, steps {{taken}} of {{n}}, current {{point}}.",
-    "eulerDetailsError": "Error {{error}}."
+    "eulerDetailsError": "Error {{error}}.",
+    "model": "Model",
+    "exponentialGrowth": "Exponential growth / decay",
+    "newtonsCooling": "Newton's law of cooling",
+    "logisticGrowth": "Logistic growth",
+    "logisticHarvesting": "Logistic with harvesting",
+    "growthRateR": "Growth rate r",
+    "coolingRateR": "Cooling rate r",
+    "carryingCapacityK": "Carrying capacity K",
+    "ambientTemperature": "Ambient Ta",
+    "harvestRateH": "Harvest rate H",
+    "initialPopulation": "Initial P₀",
+    "initialTemperature": "Initial T₀",
+    "initialValue": "Initial y₀",
+    "timeMax": "t max",
+    "phaseLine": "Phase line",
+    "directionField": "Direction field",
+    "y0Handle": "Initial value",
+    "moveY0": "Move initial value",
+    "y0Readout": "y₀ = {{y}}",
+    "p0Readout": "P₀ = {{y}}",
+    "t0Readout": "T₀ = {{y}}",
+    "axisT": "t",
+    "axisP": "P",
+    "axisTemp": "T (°C)",
+    "axisY": "y",
+    "axisF": "f(y)",
+    "kOver2": "K/2",
+    "doublingTime": "Doubling time: {{t}}",
+    "halfLife": "Half-life: {{t}}",
+    "inflectionHeight": "Inflection height K/2 = {{value}}",
+    "criticalHarvest": "Critical harvest rK/4 = {{value}}",
+    "extinctionWarning": "No equilibria: harvesting faster than rK/4 = {{value}} drives the population to extinction",
+    "extinctionTime": "Extinction time: {{t}}",
+    "harvestingNumerical": "Closed form is not shown; the curve is numerical.",
+    "odeExponential": "dP/dt = {{r}} P   ⇒   P(t) = {{y0}} e<sup>{{rExp}}</sup>",
+    "odeCooling": "dT/dt = −{{r}} (T − {{ambient}})   ⇒   T(t) = {{ambient}} + ({{y0}} − {{ambient}}) e<sup>−{{r}} t</sup>",
+    "odeLogistic": "dP/dt = {{r}} P (1 − P/{{K}})   ⇒   P(t) = {{K}} / (1 + {{ratio}} e<sup>−{{r}} t</sup>)",
+    "odeHarvesting": "dP/dt = {{r}} P (1 − P/{{K}}) − {{H}}",
+    "equilibriumLabeled": "{{y}} ({{stability}})",
+    "growthDetails": "{{model}}: {{params}}. Equilibria: {{equilibria}}."
   }
 }
