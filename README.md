@@ -6,6 +6,9 @@ Sketch slope fields, step through Euler's method, and model growth with separabl
 
 ## Features
 
+- **Slope Field:** sketch a direction field for a first-order ODE, drag the initial point, pin curves, and overlay exact solutions, equilibria, and isoclines.
+- **Euler's Method:** step or play Euler's method against the exact curve, with Heun and RK4 overlays, a step table, and adjustable step size.
+- **Growth Models:** explore exponential, cooling, logistic, and harvested-logistic models with equilibria, a phase line, and closed-form or numerical solutions.
 - English, Spanish, and French localization via `StringManager`
 - Default and projector color profiles
 - Progressive Web App (installable, offline-capable)

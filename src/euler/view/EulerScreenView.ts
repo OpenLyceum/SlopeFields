@@ -9,7 +9,7 @@
 import { Multilink, type ReadOnlyProperty } from "scenerystack/axon";
 import { localeProperty } from "scenerystack/joist";
 import { StringUtils } from "scenerystack/phetcommon";
-import { GridBox, Node, Text } from "scenerystack/scenery";
+import { GridBox, HBox, Node, Text, VBox } from "scenerystack/scenery";
 import {
   button,
   type Choice,
@@ -32,6 +32,7 @@ import Colors from "../../SlopeFieldsColors.js";
 import {
   EULER_FIELD_DENSITY,
   EULER_FIELD_SCALE,
+  HANDLE_RADIUS_PX,
   INITIAL_POINT_STEP,
   STEP_SIZE_PRESETS,
   X_END_MIN_GAP,
@@ -93,6 +94,7 @@ export class EulerScreenView extends LessonView {
       const current = points[Math.min(taken, points.length - 1)];
       const xy = current === undefined ? "—" : `(${format(current[0])}, ${format(current[1])})`;
       let textValue = StringUtils.fillIn(strings.eulerDetailsStringProperty.value, {
+        equation: model.equation.latex,
         h: format(h, 2),
         taken: `${taken}`,
         n: `${n}`,
@@ -140,7 +142,15 @@ export class EulerScreenView extends LessonView {
       width: 44,
     });
 
-    const stepButton = button(strings.stepStringProperty, () => model.stepForward());
+    const stepButton = button(strings.stepStringProperty, () => {
+      model.stepForward();
+      stepButton.addAccessibleContextResponse(
+        StringUtils.fillIn(strings.stepResponseStringProperty.value, {
+          taken: `${model.stepsTakenProperty.value}`,
+          n: `${model.totalSteps}`,
+        }),
+      );
+    });
     const playLabel = computed(
       [model.isPlayingProperty, strings.playStringProperty, strings.pauseStringProperty],
       () => (model.isPlayingProperty.value ? strings.pauseStringProperty.value : strings.playStringProperty.value),
@@ -153,7 +163,14 @@ export class EulerScreenView extends LessonView {
     });
     const showAllButton = button(strings.showAllStringProperty, () => model.showAll());
     const restartButton = button(strings.restartStringProperty, () => model.restart());
-    const halveButton = button(strings.halveHStringProperty, () => model.halveStep());
+    const halveButton = button(strings.halveHStringProperty, () => {
+      model.halveStep();
+      halveButton.addAccessibleContextResponse(
+        StringUtils.fillIn(strings.halveHResponseStringProperty.value, {
+          h: format(model.stepSizeProperty.value, 2),
+        }),
+      );
+    });
 
     const exactCheckbox = checkbox(model.showExactProperty, strings.exactSolutionStringProperty);
     const heunCheckbox = checkbox(model.showHeunProperty, strings.improvedEulerStringProperty);
@@ -196,14 +213,23 @@ export class EulerScreenView extends LessonView {
     const readout = computed([...dependencies], () => this.buildReadout());
     const heunRk4Readout = computed([...dependencies], () => this.buildOverlayErrors());
 
-    const notes = row(
-      this.tableParent,
-      column(
-        text(readout, 14, 340),
-        text(heunRk4Readout, 13, 340),
-        richText(strings.orderHintStringProperty, 12, 340, false, true),
-      ),
-    );
+    // Table left, readouts right — top-aligned with a clear gap (not the centered `row` helper).
+    const notes = new HBox({
+      spacing: 28,
+      align: "top",
+      children: [
+        this.tableParent,
+        new VBox({
+          spacing: 8,
+          align: "left",
+          children: [
+            text(readout, 14, 270),
+            text(heunRk4Readout, 13, 270),
+            richText(strings.orderHintStringProperty, 12, 270, false, true),
+          ],
+        }),
+      ],
+    });
 
     this.finish(controls, notes, () => model.reset());
 
@@ -212,13 +238,20 @@ export class EulerScreenView extends LessonView {
       const { xMin, xMax, yMin, yMax } = model.equation.domain;
       const x0 = Math.max(xMin, Math.min(xMax - X_END_MIN_GAP, x));
       const y0 = Math.max(yMin, Math.min(yMax, y));
-      model.x0Property.value = x0;
-      model.y0Property.value = y0;
+      if (model.x0Property.value !== x0) {
+        model.x0Property.value = x0;
+      }
+      if (model.y0Property.value !== y0) {
+        model.y0Property.value = y0;
+      }
     };
     const clampXEnd = (x: number) => {
       const min = model.x0Property.value + X_END_MIN_GAP;
       const max = model.equation.domain.xMax;
-      model.xEndProperty.value = Math.max(min, Math.min(max, x));
+      const next = Math.max(min, Math.min(max, x));
+      if (model.xEndProperty.value !== next) {
+        model.xEndProperty.value = next;
+      }
     };
 
     this.startHandle = plot.handle({
@@ -408,7 +441,7 @@ export class EulerScreenView extends LessonView {
       plot.point(x, y, Colors.accentColorProperty, false, 5);
     }
 
-    // Next-step tangent segment: follow the slope out by one step size.
+    // Next-step tangent: start at the handle rim so the dash is visible beyond the start point.
     if (taken < model.totalSteps) {
       const current = euler[taken];
       if (current !== undefined) {
@@ -417,10 +450,17 @@ export class EulerScreenView extends LessonView {
         const slope = eq.f(xn, yn);
         if (Number.isFinite(slope)) {
           const xNext = Math.min(xn + h, model.xEndProperty.value);
+          const yNext = yn + (xNext - xn) * slope;
+          const dxView = plot.plotX(xNext) - plot.plotX(xn);
+          const dyView = plot.plotY(yNext) - plot.plotY(yn);
+          const len = Math.hypot(dxView, dyView);
+          const t0 = len > HANDLE_RADIUS_PX ? HANDLE_RADIUS_PX / len : 0;
+          const xStart = xn + t0 * (xNext - xn);
+          const yStart = yn + t0 * (yNext - yn);
           plot.line(
             [
-              [xn, yn],
-              [xNext, yn + (xNext - xn) * slope],
+              [xStart, yStart],
+              [xNext, yNext],
             ],
             Colors.accentColorProperty,
             2,

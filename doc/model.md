@@ -5,8 +5,14 @@ Educator-facing description of what this simulation models.
 ## Overview
 
 Slope Fields is a Calculus II simulation of first-order ordinary differential equations
-\(y' = f(x, y)\). Students sketch slope fields, compare numerical methods (Euler, Heun, RK4),
-and explore autonomous growth / decay models with equilibria and closed-form solutions.
+\(y' = f(x, y)\).
+
+- **Slope Field** — sketch the direction field, move the initial condition, pin several
+  numerical solutions, and overlay the exact curve, equilibria, and an isocline \(f = c\).
+- **Euler's Method** — step or play Euler from \((x_0, y_0)\) to \(x_\mathrm{end}\), compare
+  with Heun and RK4, and read global error against the closed form.
+- **Growth Models** — autonomous population / cooling ODEs with equilibria, a phase line,
+  and closed-form or numerical solutions (harvesting has no elementary closed form).
 
 ## Quantities and units
 
@@ -14,7 +20,7 @@ and explore autonomous growth / decay models with equilibria and closed-form sol
 |---|---|---|---|
 | Independent variable | \(x\) or \(t\) | dimensionless (or time) | per-equation window |
 | Dependent variable | \(y\) | dimensionless | per-equation window |
-| Step size | \(h\) | same as \(x\) | positive |
+| Step size | \(h\) | same as \(x\) | positive presets on Euler |
 | Growth rate | \(r\) | 1/time | model-dependent |
 | Carrying capacity | \(K\) | same as \(y\) | \(> 0\) |
 | Ambient temperature | \(T_a\) | same as \(y\) | any |
@@ -23,6 +29,8 @@ and explore autonomous growth / decay models with equilibria and closed-form sol
 ## Governing equations
 
 ### Equation library (`src/common/model/EquationLibrary.ts`)
+
+Used by Slope Field (all entries) and Euler (entries with a closed form).
 
 | id | Equation | Exact solution through \((x_0, y_0)\) | Equilibria | Window |
 |---|---|---|---|---|
@@ -64,9 +72,29 @@ and forward-to-\(x_\max\) in increasing \(x\).
 
 Closed forms (from \(t=0\)): exponential \(y_0 e^{rt}\); cooling
 \(T_a + (y_0-T_a)e^{-rt}\); logistic \(K\big/\bigl(1+\frac{K-y_0}{y_0}e^{-rt}\bigr)\)
-(\(y_0=0\to 0\)). Harvesting has no elementary closed form (use RK4 in the view).
+(\(y_0=0\to 0\)). Harvesting has no elementary closed form (RK4 in the view).
 Characteristic times: doubling \(\ln 2/r\) or half-life \(\ln 2/|r|\) for exponential;
 half-life of the temperature difference \(\ln 2/r\) for cooling.
+
+## Screens
+
+### Slope Field
+
+Default equation `logistic`, initial point \((0, 0.5)\). Density and segment scale control the
+field; Keep pins up to six curves; Clear removes them. Equilibria are classified from the
+sign of \(f\) just below / above each constant solution.
+
+### Euler's Method
+
+Equations with a closed form only. Default \(y' = y\), \(h = 0.2\), from \((0,1)\) to
+\(x_\mathrm{end}=1\). Preset step sizes \(\{0.8,0.4,0.2,0.1,0.05\}\); Halve \(h\) snaps to the
+next smaller preset. Global error is \(|y_N - y_\mathrm{exact}(x_\mathrm{end})|\).
+
+### Growth Models
+
+Default logistic. Switching models restores that model's parameter defaults; Reset All
+returns to logistic. The main plot pads slightly below \(y = 0\) so the initial-value handle
+and the \(y=0\) equilibrium label stay clear of the \(t\)-axis ticks.
 
 ## Simplifications
 

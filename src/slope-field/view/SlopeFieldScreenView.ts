@@ -137,8 +137,18 @@ export class SlopeFieldScreenView extends LessonView {
       1,
       undefined,
       0.5,
+      model.isoclineSlopeProperty.rangeProperty,
     );
-    const densitySlider = slider(strings.arrowsPerRowStringProperty, model.densityProperty, 9, 31, 0, undefined, 2);
+    const densitySlider = slider(
+      strings.arrowsPerRowStringProperty,
+      model.densityProperty,
+      9,
+      31,
+      0,
+      undefined,
+      2,
+      model.densityProperty.rangeProperty,
+    );
     const scaleSlider = slider(
       strings.arrowLengthStringProperty,
       model.segmentScaleProperty,
@@ -147,10 +157,17 @@ export class SlopeFieldScreenView extends LessonView {
       1,
       undefined,
       0.1,
+      model.segmentScaleProperty.rangeProperty,
     );
 
-    const keepButton = button(strings.keepCurveStringProperty, () => model.keepCurve());
-    const clearButton = button(strings.clearCurvesStringProperty, () => model.clearCurves());
+    const keepButton = button(strings.keepCurveStringProperty, () => {
+      model.keepCurve();
+      keepButton.addAccessibleContextResponse(strings.keepCurveResponseStringProperty);
+    });
+    const clearButton = button(strings.clearCurvesStringProperty, () => {
+      model.clearCurves();
+      clearButton.addAccessibleContextResponse(strings.clearCurvesResponseStringProperty);
+    });
 
     Multilink.multilink([model.equationIdProperty], () => {
       const eq = model.equation;
@@ -236,10 +253,14 @@ export class SlopeFieldScreenView extends LessonView {
     const plot = this.plot;
     const clampPoint = (x: number, y: number) => {
       const { xMin, xMax, yMin, yMax } = model.equation.domain;
-      model.initialPointProperty.value = new Vector2(
-        Math.max(xMin, Math.min(xMax, x)),
-        Math.max(yMin, Math.min(yMax, y)),
-      );
+      const nx = Math.max(xMin, Math.min(xMax, x));
+      const ny = Math.max(yMin, Math.min(yMax, y));
+      const p = model.initialPointProperty.value;
+      // Avoid no-op Vector2Property sets (nested drag/keyboard can re-enter axon).
+      if (p.x === nx && p.y === ny) {
+        return;
+      }
+      model.initialPointProperty.value = new Vector2(nx, ny);
     };
 
     plot.onDrag((x, y) => clampPoint(x, y));
@@ -315,10 +336,12 @@ export class SlopeFieldScreenView extends LessonView {
         const label = new Text(StringUtils.fillIn(strings.equilibriumLabelStringProperty.value, { c: format(c) }), {
           font: "12px sans-serif",
           fill: Colors.quaternaryColorProperty,
+          maxWidth: 120,
           pickable: false,
         });
         label.right = plot.plotX(xMax) - 8;
-        label.centerY = plot.plotY(c) - 10;
+        const py = plot.plotY(c);
+        label.centerY = Math.max(12, Math.min(plot.heightInPixels - 30, py - 10));
         plot.layers.addChild(label);
       }
     }

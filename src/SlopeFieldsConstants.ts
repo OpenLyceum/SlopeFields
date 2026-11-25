@@ -13,8 +13,6 @@
  *  - Layout / chrome values are in screen pixels.
  *  - Colour strings live in SlopeFieldsColors.ts, not here.
  *  - Computed expressions (e.g. `2 * Math.PI`) may stay inline.
- *
- * Remove the example constants below and replace them with the sim's own.
  */
 
 import { Range, Vector2 } from "scenerystack/dot";
@@ -104,6 +102,15 @@ export const GROWTH_MAIN_PLOT_HEIGHT = 250;
 
 /** Phase-line plot height (f(y) vs y). */
 export const GROWTH_PHASE_PLOT_HEIGHT = 110;
+
+/**
+ * Extra room below y = 0 on logistic / harvesting / cooling windows so the y₀
+ * handle and the "0 (unstable)" equilibrium label stay clear of the t-axis ticks.
+ */
+export const GROWTH_Y_BELOW_ZERO = 0.55;
+
+/** Plot-handle radius used when offsetting the Euler next-step tangent (pixels). */
+export const HANDLE_RADIUS_PX = 8;
 
 /** RK4 samples for harvesting: h = tMax / GROWTH_RK4_DIVISOR. */
 export const GROWTH_RK4_DIVISOR = 600;
@@ -201,6 +208,8 @@ SlopeFieldsNamespace.register("SlopeFieldsConstants", {
   EULER_FIELD_SCALE,
   GROWTH_MAIN_PLOT_HEIGHT,
   GROWTH_PHASE_PLOT_HEIGHT,
+  GROWTH_Y_BELOW_ZERO,
+  HANDLE_RADIUS_PX,
   GROWTH_RK4_DIVISOR,
   GROWTH_EXTINCTION_TIME_CAP,
   GROWTH_FIELD_DENSITY,

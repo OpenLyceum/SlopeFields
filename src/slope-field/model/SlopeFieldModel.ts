@@ -50,7 +50,8 @@ export class SlopeFieldModel implements TModel {
     this.equationIdProperty = new StringProperty("logistic", {
       validValues: EQUATION_IDS,
     });
-    this.initialPointProperty = new Vector2Property(INITIAL_POINT_DEFAULT.copy());
+    // reentrant: nested drag/keyboard updates can set the point while listeners (redraw) run.
+    this.initialPointProperty = new Vector2Property(INITIAL_POINT_DEFAULT.copy(), { reentrant: true });
     this.densityProperty = new NumberProperty(DENSITY_DEFAULT, {
       range: DENSITY_RANGE,
     });
@@ -114,6 +115,10 @@ export class SlopeFieldModel implements TModel {
     }
     const x = Math.max(xMin, Math.min(xMax, 0));
     const y = (yMin + yMax) / 2;
+    // Skip no-op sets so equation-change listeners do not re-enter Vector2Property.
+    if (p.x === x && p.y === y) {
+      return;
+    }
     this.initialPointProperty.value = new Vector2(x, y);
   }
 

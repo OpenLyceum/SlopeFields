@@ -20,6 +20,7 @@ import {
   computed,
   format,
   LessonView,
+  niceTicks,
   Plot,
   richText,
   slider,
@@ -43,6 +44,7 @@ import {
   GROWTH_MAIN_PLOT_HEIGHT,
   GROWTH_PHASE_ARROW_COUNT,
   GROWTH_PHASE_PLOT_HEIGHT,
+  GROWTH_Y_BELOW_ZERO,
   type GrowthParamDefaults,
   HARVESTING_DEFAULTS,
   LOGISTIC_DEFAULTS,
@@ -62,18 +64,20 @@ function yWindow(model: GrowthModelsModel): { yMin: number; yMax: number } {
   const y0 = model.y0Property.value;
   const tMax = model.tMaxProperty.value;
   if (id === "cooling") {
-    return { yMin: 0, yMax: 100 };
+    return { yMin: -GROWTH_Y_BELOW_ZERO, yMax: 100 };
   }
   if (id === "logistic" || id === "harvesting") {
     const top = 1.4 * Math.max(model.kProperty.value, y0);
-    return { yMin: 0, yMax: Math.max(1, roundSymmetric(top)) };
+    const yMax = Math.max(1, roundSymmetric(top));
+    // Pad below 0 so the P₀ handle and the y = 0 equilibrium label clear the t ticks.
+    return { yMin: -GROWTH_Y_BELOW_ZERO, yMax };
   }
   // Exponential: fit y0 e^{r tMax}, capped at 50.
   const r = model.rProperty.value;
   const peak = y0 * Math.exp(r * tMax);
   const low = r < 0 ? peak : y0 * Math.exp(Math.min(0, r) * tMax);
   const yMax = Math.min(50, Math.max(y0 * 1.2, peak * 1.15, 1));
-  const yMin = Math.min(0, low * 1.05);
+  const yMin = Math.min(-GROWTH_Y_BELOW_ZERO, low * 1.05);
   return { yMin, yMax: Math.max(yMax, yMin + 1) };
 }
 
@@ -189,6 +193,27 @@ export class GrowthModelsScreenView extends LessonView {
 
     const controls = column(modelBox, this.sliderColumn, phaseCheckbox, equilibriaCheckbox, fieldCheckbox);
 
+    // Announce once when harvesting crosses (or switches into) H > rK/4.
+    let extinctionAnnounced = false;
+    const maybeAnnounceExtinction = () => {
+      const above = model.modelId === "harvesting" && model.harvestProperty.value > criticalHarvest(model.parameters);
+      if (above && !extinctionAnnounced) {
+        extinctionAnnounced = true;
+        modelBox.addAccessibleContextResponse(
+          StringUtils.fillIn(strings.extinctionContextResponseStringProperty.value, {
+            value: format(criticalHarvest(model.parameters)),
+          }),
+        );
+      }
+      if (!above) {
+        extinctionAnnounced = false;
+      }
+    };
+    model.modelIdProperty.lazyLink(maybeAnnounceExtinction);
+    model.harvestProperty.lazyLink(maybeAnnounceExtinction);
+    model.rProperty.lazyLink(maybeAnnounceExtinction);
+    model.kProperty.lazyLink(maybeAnnounceExtinction);
+
     this.phasePlot = new Plot(this.notesWidth, GROWTH_PHASE_PLOT_HEIGHT);
     model.showPhaseLineProperty.link((show) => {
       this.phasePlot.visible = show;
@@ -217,7 +242,10 @@ export class GrowthModelsScreenView extends LessonView {
       const range = model.y0Property.range;
       const lo = Math.max(yMin, range.min);
       const hi = Math.min(yMax, range.max);
-      model.y0Property.value = Math.max(lo, Math.min(hi, y));
+      const next = Math.max(lo, Math.min(hi, y));
+      if (model.y0Property.value !== next) {
+        model.y0Property.value = next;
+      }
     };
 
     this.y0Handle = plot.handle({
@@ -268,7 +296,8 @@ export class GrowthModelsScreenView extends LessonView {
       spec: { min: number; max: number; step: number },
       digits = 2,
     ) => {
-      const control = slider(label, property, spec.min, spec.max, digits, undefined, spec.step);
+      // Pass rangeProperty so stepped constrainValue clamps snaps that fall outside [min, max].
+      const control = slider(label, property, spec.min, spec.max, digits, undefined, spec.step, property.rangeProperty);
       this.sliderColumn.addChild(control);
       this.sliderDisposables.push(control);
     };
@@ -461,11 +490,15 @@ export class GrowthModelsScreenView extends LessonView {
           {
             font: "11px sans-serif",
             fill: stroke,
+            maxWidth: 160,
             pickable: false,
           },
         );
-        label.right = plot.plotX(tMax) - 8;
-        label.centerY = plot.plotY(eq.y) - 10;
+        // Stay left of the "t" axis title in the bottom-right corner.
+        label.right = plot.plotX(tMax) - 30;
+        // Keep labels clear of the bottom t-tick strip (~26 px) and the top edge.
+        const py = plot.plotY(eq.y);
+        label.centerY = Math.max(12, Math.min(plot.heightInPixels - 30, py - 12));
         plot.layers.addChild(label);
       }
     }
@@ -528,7 +561,15 @@ export class GrowthModelsScreenView extends LessonView {
     fMin -= pad;
     fMax += pad;
 
-    plot.setDomain([yMin, yMax, fMin, fMax], strings.axisYStringProperty, strings.axisFStringProperty);
+    // Skip an f ≈ 0 tick label — the dashed zero line already marks that row.
+    const fTicks = niceTicks(fMin, fMax, 4).filter((v) => Math.abs(v) > 0.08 * (fMax - fMin));
+    plot.setDomain(
+      [yMin, yMax, fMin, fMax],
+      strings.axisYStringProperty,
+      strings.axisFStringProperty,
+      undefined,
+      fTicks,
+    );
 
     // Zero line for f.
     plot.line(
